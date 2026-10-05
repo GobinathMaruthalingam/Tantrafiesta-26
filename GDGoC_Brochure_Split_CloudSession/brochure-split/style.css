@@ -1,0 +1,62 @@
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; text-rendering: geometricPrecision; text-wrap: pretty; }
+html, body { margin: 0; padding: 0; }
+body { font-family: 'Poppins', sans-serif; color: #F4F1FF; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+a { color: inherit; text-decoration: none; }
+:root{
+  --frame:#E0A62B; --gold:#F5AE1A; --gold2:#FFD36B; --pink:#F7A3CC; --mag:#B0226C; --hot:#E8197F;
+  --gb:#4285F4; --gr:#EA4335; --gy:#FBBC04; --gg:#34A853; --muted:#CFC9F2;
+}
+.page{ position:relative; width:210mm; height:297mm; overflow:hidden; page-break-after:always; break-after:page; background-color:#241D61; }
+/* TF background exactly as in the TF Canva file: damask image at 16% opacity over #241D61, same placement */
+.page::before{ content:''; position:absolute; left:0; top:-30.64mm; width:210mm; height:368.4mm; background:url(a/bg_tf.jpg) no-repeat; background-size:100% 100%; opacity:.16; z-index:0; pointer-events:none; }
+.tfk{ display:flex; align-items:center; justify-content:center; gap:3.5mm; }
+.tfk img{ width:30mm; height:.55mm; flex:0 1 30mm; object-fit:fill; }
+.tfk img.r{ transform:scaleX(-1); }
+.tfk span{ white-space:nowrap; }
+.page:last-child{ page-break-after:auto; break-after:auto; }
+.page::after{ content:''; position:absolute; inset:0; border:2.2mm solid var(--frame); pointer-events:none; z-index:60; }
+.corner-l,.corner-r{ position:absolute; top:2.2mm; width:33mm; z-index:5; }
+.corner-l{ left:2.2mm; } .corner-r{ right:2.2mm; transform:scaleX(-1); }
+.content{ position:absolute; top:26mm; left:17mm; right:17mm; bottom:30mm; z-index:10; }
+
+/* footer */
+.ft{ position:absolute; left:0; right:0; bottom:0; height:24mm; z-index:20; }
+.ft .lot{ position:absolute; left:4mm; bottom:3mm; height:14mm; }
+.ft .leaf{ position:absolute; left:143mm; bottom:6.6mm; height:9.6mm; }
+.ft svg{ position:absolute; left:0; bottom:0; width:210mm; height:24mm; }
+.ft .tag{ position:absolute; left:0; right:0; bottom:6.2mm; text-align:center; font:600 7pt 'Poppins'; letter-spacing:.2em; color:#E9E4FF; }
+.ft .pno{ position:absolute; right:11mm; bottom:6.5mm; font:600 10.5pt 'Poppins'; color:#fff; }
+
+/* TF headline (closest free match to RL Aqva) */
+.h{ font-family:'Lilita One', cursive; color:var(--gold); text-align:center; line-height:1; margin:0; letter-spacing:.5px;
+    -webkit-text-stroke: 1.9mm var(--mag); paint-order: stroke fill; text-shadow: 0 1.2mm 0 #5D0F3B; }
+.h .pink, .h.pink{ color:var(--pink); }
+.h.xl{ font-size:44pt; } .h.lg{ font-size:35pt; } .h.md{ font-size:27pt; -webkit-text-stroke-width:1.5mm; }
+.kicker{ font:700 8.2pt 'Poppins'; letter-spacing:.26em; text-transform:uppercase; color:var(--gold2); text-align:center; }
+p{ margin:0; }
+.body{ font-size:10.5pt; line-height:1.65; color:#EEEAFF; }
+.body b{ color:#fff; font-weight:600; }
+.center{ text-align:center; text-wrap:balance; }
+.panel{ background:rgba(22,17,72,.82); border:.45mm solid rgba(224,166,43,.7); border-radius:4mm; }
+.ic{ display:inline-block; vertical-align:middle; flex:none; }
+.ev{ font-family:'Bungee'; line-height:.95; color:#FF5FAE; letter-spacing:.5px; -webkit-text-stroke:.55mm #FFC94A; paint-order:stroke fill; text-shadow:0 .8mm 0 #4B0B33; }
+.mono{ font-family:'JetBrains Mono', monospace; }
+.price{ font:400 26pt 'Lilita One'; color:var(--gold); line-height:1; }
+.card{ background:linear-gradient(180deg, rgba(42,34,117,.95), rgba(22,17,72,.95)); border:.55mm solid var(--frame); border-radius:4.5mm; position:relative; }
+ul.tick{ list-style:none; padding:0; margin:0; }
+ul.tick li{ position:relative; padding-left:5.4mm; font-size:9.2pt; line-height:1.5; margin-bottom:2.2mm; color:#ECE8FF; }
+ul.tick li::before{ content:''; position:absolute; left:0; top:1.5mm; width:2.6mm; height:2.6mm; border-radius:50%; background:var(--gold); box-shadow: inset 0 0 0 .6mm #1E1858; }
+ul.tick li b{ color:#fff; font-weight:600; }
+
+/* lockup */
+.lockup{ display:flex; align-items:center; gap:3mm; }
+.lockup img{ height:11mm; }
+.lockup .l1{ font:600 12pt 'Outfit'; color:#fff; white-space:nowrap; }
+.lockup .l2{ font:400 7.6pt 'Outfit'; color:#D5D2EA; white-space:nowrap; margin-top:.4mm; }
+.lockup .l2 b{ color:#6FA3FF; font-weight:600; }
+
+.band{ display:flex; align-items:center; gap:3.5mm; padding:4.2mm 5.5mm; border-radius:4mm; background:linear-gradient(90deg,var(--gold),#FFCF5C); color:#1E1858; font:500 9.4pt 'Poppins'; line-height:1.45; }
+.band b{ font-weight:700; }
+
+.nw{ white-space:nowrap; }
