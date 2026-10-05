@@ -13,6 +13,9 @@ with sync_playwright() as p:
     b.close()
 w = PdfWriter()
 for page in PdfReader(raw).pages: w.add_page(page)
-w.add_page(PdfReader('TF26_Corporate_Brochure.pdf').pages[17])   # TF "TANTRA FIESTA 2026" last page
+# TF "TANTRA FIESTA 2026" last page: page 18 of the TF corporate brochure; if that file isn't here,
+# take the same page from the last page of the approved reference brochure
+if os.path.exists('TF26_Corporate_Brochure.pdf'): w.add_page(PdfReader('TF26_Corporate_Brochure.pdf').pages[17])
+else: w.add_page(PdfReader('reference_current_brochure.pdf').pages[-1])
 w.write(out); os.remove(raw)
 print('wrote', out, len(w.pages), 'pages')

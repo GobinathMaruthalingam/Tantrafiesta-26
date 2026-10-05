@@ -24,10 +24,18 @@ def frame(n, body, corners=True, foot=True):
 LOCKUP = '''<div class="lockup"><img src="a/gdg_logo.png"><div><div class="l1">Google Developer Groups</div>
 <div class="l2"><b>On Campus</b> · Indian Institute of Information Technology Nagpur</div></div></div>'''
 
-pages = []
+# Every page is a function f(n, v): n = its page number, v = the version dict (see VERSIONS at the bottom).
+# @page(title) gives it an Index entry; @page() pages (cover, index, back cover) are left out of the Index.
+def page(title=None):
+    def reg(fn):
+        fn.title = title
+        return fn
+    return reg
 
 # ---------------- 1 COVER ----------------
-pages.append(frame(1, f'''
+@page()
+def cover(n, v):
+    return frame(n, f'''
 <style>
 .cv-top{{position:absolute;top:9mm;left:12mm;right:11mm;display:flex;justify-content:space-between;align-items:center;z-index:20}}
 .cv-top .lockup{{gap:3.4mm}} .cv-top .lockup img{{height:13.2mm}} .cv-top .lockup .l1{{font-size:14.2pt}} .cv-top .lockup .l2{{font-size:8.9pt;margin-top:.5mm}}
@@ -49,15 +57,15 @@ pages.append(frame(1, f'''
    <div class="ev">EDGE CASE <span style="color:var(--gold2)">'26</span></div><div class="x">×</div>
    <div class="ev">KEEP ALIVE <span style="color:var(--gold2)">'26</span></div></div></div>
 <div class="cv-title"><div class="t">SPONSORSHIP<br>BROCHURE</div>
-<div class="s">Two national championships · Tantrafiesta 2026</div></div>
-''', corners=False, foot=False))
+<div class="s">{v["subtitle"]}</div></div>
+''', corners=False, foot=False)
 
 # ---------------- 2 INDEX ----------------
-idx = [("About IIIT Nagpur &amp; Tantrafiesta","03"),("About GDG on Campus","04"),("EDGE CASE '26","05"),("KEEP ALIVE '26","06"),
-       ("Why Sponsor Us?","07"),("Your Reach in Nagpur","08"),("EDGE CASE Sponsor Tiers","09"),("KEEP ALIVE Tiers &amp; Bundles","10"),
-       ("Nagpur Local Partners","11"),("Deliverables","12"),("How to Partner","13"),("Past Partners","14"),("Contact Us","15")]
-rows = ''.join(f'<div class="ix"><span class="nm">{a}</span><span class="dots"></span><span class="pg">{b}</span></div>' for a,b in idx)
-pages.append(frame(2, f'''
+@page()
+def index(n, v):
+    # v["index"] = [(title, page number), ...], generated from the version's page list
+    rows = ''.join(f'<div class="ix"><span class="nm">{a}</span><span class="dots"></span><span class="pg">{b:02d}</span></div>' for a,b in v["index"])
+    return frame(n, f'''
 <style>
 .ix-hd{{position:absolute;top:0;left:0;width:210mm;z-index:4}}
 .ix-h{{position:absolute;top:30mm;left:0;right:0;z-index:8}}
@@ -69,7 +77,7 @@ pages.append(frame(2, f'''
 </style>
 <img class="ix-hd" src="a/tf_index_header.png">
 <div class="ix-list">{rows}</div>
-''', corners=False))
+''', corners=False)
 
 # ---------------- 3 ABOUT IIITN + TF (v1 content, re-spaced) ----------------
 eds = [(2000,"2,000+","Life in<br>Future"),(4000,"4,000+","Greener<br>Tomorrow"),(10000,"10,000+","Genesis<br>Unleashed"),(20000,"20,000+","Digital<br>Big Bang"),(24000,"24,000+","Dark Matter<br>Eclipse"),(30000,"30,000+","The<br>Maximalism")]
@@ -78,7 +86,9 @@ for v,lab,th in eds:
     h=max(3, 17*v/30000)
     bars+=f'<div class="jc"><div class="jv">{lab}</div><div class="jb" style="height:{h:.1f}mm"></div><div class="jt">{th}</div></div>'
 bars+='<div class="jc now"><div class="jv">2026</div><div class="jb" style="height:20mm"><span>✦</span></div><div class="jt">ANANTA</div></div>'
-pages.append(frame(3, f'''
+@page('About IIIT Nagpur &amp; Tantrafiesta')
+def about(n, v):
+    return frame(n, f'''
 <style>
 .p3 .jb2{{text-align:justify;hyphens:auto;-webkit-hyphens:auto;line-height:1.65;font-size:10.4pt}}
 .p3 .ph{{display:flex;justify-content:center;gap:12mm;margin-top:5mm}}
@@ -117,7 +127,7 @@ pages.append(frame(3, f'''
   <div class="jg">{bars}</div>
  </div>
 </div>
-'''))
+''')
 
 # ---------------- 4 GDG ON CAMPUS (v2 layout, updated hero text) ----------------
 why = [("building","var(--gb)","Google-backed credibility","Your brand stands next to an official Google for Developers program."),
@@ -125,7 +135,9 @@ why = [("building","var(--gb)","Google-backed credibility","Your brand stands ne
        ("globe","var(--gy)","On Google's own platform","Our events are listed on gdg.community.dev, Google's developer community platform."),
        ("clock","var(--gg)","Reach all year round","Workshops, hackathons and tech talks run through the year, not just at the fest.")]
 wy = ''.join(f'<div class="wy panel"><div class="wi" style="background:{c}">{ic(i,"#fff","6.5mm",2)}</div><div><div class="wt">{t}</div><div class="wd">{d}</div></div></div>' for i,c,t,d in why)
-pages.append(frame(4, f'''
+@page('About GDG on Campus')
+def gdg(n, v):
+    return frame(n, f'''
 <style>
 .gdg-hero{{display:flex;align-items:center;gap:7mm;margin-top:10mm}}
 .gdg-hero img{{width:44mm}}
@@ -153,16 +165,19 @@ pages.append(frame(4, f'''
  <div class="wys">{wy}</div>
  <p style="font:400 7pt 'Poppins';color:#B9B3DE;text-align:center;margin-top:9mm">GDG on Campus chapters are student-led and supported by Google for Developers.</p>
 </div>
-'''))
+''')
 
 # ---------------- 5 EDGE CASE ----------------
 tracks = [("Guardian","shield","var(--gb)","Safety &amp; health"),("Terra","leaf","var(--gg)","Sustainability &amp; agriculture"),("Forge","factory","var(--gy)","Industry 4.0"),("Wildcard","spark","var(--gr)","Anything bold")]
 tk = ''.join(f'<div class="trk"><div class="ti" style="background:{c}">{ic(i,"#fff","7mm",2)}</div><div class="tn">{n}</div><div class="td">{d}</div></div>' for n,i,c,d in tracks)
 steps = [("Sense","sensor","var(--gb)","Read real-world sensor data"),("Think","chip","var(--gy)","Decide with an on-device AI model"),("Act","gear","var(--gg)","Act physically on the world")]
-st = ''
-for k,(n,i,c,d) in enumerate(steps):
-    st += f'<div class="sta"><div class="si" style="border-color:{c}">{ic(i,c,"10mm",1.7)}</div><div class="sn" style="color:{c}">{n.upper()}.</div><div class="sd">{d}</div></div>'
-    if k<2: st += '<div class="arr"><svg viewBox="0 0 60 12" width="15mm" height="3mm"><path d="M0 6h52" stroke="#E0A62B" stroke-width="2" stroke-dasharray="4 3"/><path d="M50 1l9 5-9 5z" fill="#E0A62B"/></svg></div>'
+def flow(steps, isz="10mm"):
+    st = ''
+    for k,(n,i,c,d) in enumerate(steps):
+        st += f'<div class="sta"><div class="si" style="border-color:{c}">{ic(i,c,isz,1.7)}</div><div class="sn" style="color:{c}">{n.upper()}.</div><div class="sd">{d}</div></div>'
+        if k<2: st += '<div class="arr"><svg viewBox="0 0 60 12" width="15mm" height="3mm"><path d="M0 6h52" stroke="#E0A62B" stroke-width="2" stroke-dasharray="4 3"/><path d="M50 1l9 5-9 5z" fill="#E0A62B"/></svg></div>'
+    return st
+st = flow(steps)
 EVCSS = '''<style>
 .flow{display:flex;align-items:flex-start;justify-content:center;gap:1mm;margin-top:11mm}
 .sta{width:44mm;text-align:center}
@@ -185,7 +200,9 @@ EVCSS = '''<style>
 .prz .big{font:400 36pt 'Lilita One';color:var(--gold);line-height:1;margin-top:2mm}
 .prz .sub{font:500 8.6pt 'Poppins';color:#DDD8F8;line-height:1.45;margin-top:3mm}
 </style>'''
-pages.append(frame(5, EVCSS + f'''
+@page("EDGE CASE '26")
+def edge_case(n, v):
+    return frame(n, EVCSS + f'''
 <div class="content" style="top:24mm">
  <div class="kicker">NATIONAL PHYSICAL-AI HARDWARE HACKATHON</div>
  <div class="ev center" style="margin-top:3.5mm;font-size:44pt">EDGE CASE <span style="color:var(--gold2)">'26</span></div>
@@ -208,12 +225,15 @@ pages.append(frame(5, EVCSS + f'''
   </div>
  </div>
 </div>
-'''))
+''')
 
 # ---------------- 6 KEEP ALIVE ----------------
 log = [("19:42:07","ALERT","#EA4335","checkout-svc · p99 latency &gt; 2s"),("19:42:31","ACK","#FBBC04","team-07 is on-call"),("19:43:50","TRACE","#4285F4","cart-svc → redis: connection refused"),("19:44:58","FIX","#4285F4","rollback checkout-svc → v1.4.2"),("19:45:10","OK","#34A853","SLO restored · error budget safe")]
+HEARTBEAT = '<svg class="hb" viewBox="0 0 400 40" preserveAspectRatio="none"><path d="M0 22 H120 L130 22 L138 8 L146 34 L154 22 H210 L222 22 L230 2 L240 38 L250 22 H400" fill="none" stroke="#34A853" stroke-width="2.2"/><path d="M222 22 L230 2 L240 38 L250 22" fill="none" stroke="#EA4335" stroke-width="2.4"/></svg>'
 lg = ''.join(f'<div class="ln"><span class="tm">[{t}]</span><span class="lv" style="color:{c}">{l}</span><span class="ms">{m}</span></div>' for t,l,c,m in log)
-pages.append(frame(6, EVCSS + f'''
+@page("KEEP ALIVE '26")
+def keep_alive(n, v):
+    return frame(n, EVCSS + f'''
 <style>
 .term{{background:#0B0F14;border:.6mm solid #34A853;border-radius:4mm;overflow:hidden;margin-top:10mm}}
 .term .bar{{display:flex;gap:1.5mm;align-items:center;padding:2.2mm 3.5mm;background:#161B22;border-bottom:.3mm solid #263040}}
@@ -233,7 +253,7 @@ pages.append(frame(6, EVCSS + f'''
  <div class="ev center" style="margin-top:3.5mm;font-size:44pt">KEEP ALIVE <span style="color:var(--gold2)">'26</span></div>
  <p class="body center" style="margin-top:6mm">Student teams <b>run on-call for a live cloud application</b> while faults are injected in real time. The top 15 teams keep a live Kubernetes system running on campus, then defend a <b>blameless postmortem</b>.</p>
  <div class="term"><div class="bar"><i style="background:#EA4335"></i><i style="background:#FBBC04"></i><i style="background:#34A853"></i><span>keep-alive@tantrafiesta:~$ tail -f incidents.log</span></div>
-  <svg class="hb" viewBox="0 0 400 40" preserveAspectRatio="none"><path d="M0 22 H120 L130 22 L138 8 L146 34 L154 22 H210 L222 22 L230 2 L240 38 L250 22 H400" fill="none" stroke="#34A853" stroke-width="2.2"/><path d="M222 22 L230 2 L240 38 L250 22" fill="none" stroke="#EA4335" stroke-width="2.4"/></svg>
+  {HEARTBEAT}
   <div class="bd">{lg}</div></div>
  <div class="ka3">
   <div class="c panel">{ic("eye","#4285F4","9mm")}<div class="t">Observe</div><div class="d">Metrics, logs and traces to find the fault fast</div></div>
@@ -254,7 +274,51 @@ pages.append(frame(6, EVCSS + f'''
   </div>
  </div>
 </div>
-'''))
+''')
+
+# ---------------- THE EVENTS (Nagpur version: both championships on one page, in plain language) ----------------
+plain_steps = [("Sense","sensor","var(--gb)","Notices what is happening around it"),("Think","chip","var(--gy)","Works out what to do"),("Act","gear","var(--gg)","Does it, in the real world")]
+@page('The Events')
+def the_events(n, v):
+    return frame(n, EVCSS + f'''
+<style>
+.evp{{padding:7mm 8mm 6mm}}
+.evp + .evp{{margin-top:7mm}}
+.evp .ev{{font-size:31pt}}
+.evp .body{{margin-top:3.5mm}}
+.evp .flow{{margin-top:6mm}}
+.evp .si{{width:17mm;height:17mm}}
+.evp .sn{{font-size:14pt;margin-top:1.8mm}}
+.evp .arr{{padding-top:7mm}}
+.evp .hbw{{background:#0B0F14;border:.6mm solid #34A853;border-radius:3mm;padding:2.5mm 4mm;margin-top:6mm}}
+.evf{{display:grid;grid-template-columns:1fr 1.5fr;align-items:center;margin-top:5mm;padding-top:4.5mm;border-top:.3mm dashed rgba(224,166,43,.55)}}
+.evf .pz{{text-align:center;border-right:.3mm solid rgba(224,166,43,.45)}}
+.evf .pz .big{{font:400 25pt 'Lilita One';color:var(--gold);line-height:1;margin-top:1.2mm}}
+.evf .fx{{display:flex;align-items:center;gap:3mm;padding-left:6mm;font:600 10pt 'Poppins';color:#fff;line-height:1.4}}
+.evf .fx span{{text-wrap:balance}}
+.evc{{margin-top:9mm;font:500 10.5pt 'Poppins';line-height:1.6;color:#EEEAFF}}
+.evc b{{color:var(--gold);font-weight:700}}
+</style>
+<div class="content" style="top:23mm">
+ <div class="kicker">TWO NATIONAL CHAMPIONSHIPS AT TANTRAFIESTA '26</div>
+ <h1 class="h lg" style="margin-top:3mm">THE <span class="pink">EVENTS</span></h1>
+ <div class="panel evp" style="margin-top:7mm">
+  <div class="ev center">EDGE CASE <span style="color:var(--gold2)">'26</span></div>
+  <p class="body center">A <span class=nw>24-hour</span> national hackathon where student teams build real gadgets that sense, think and act.</p>
+  <div class="flow">{flow(plain_steps, "8mm")}</div>
+  <div class="evf"><div class="pz"><div class="kicker">PRIZE POOL</div><div class="big">₹50,000+</div></div>
+   <div class="fx">{ic("users","#F7A3CC","7mm")}<span>Teams from across India · finals live at Tantrafiesta '26</span></div></div>
+ </div>
+ <div class="panel evp">
+  <div class="ev center">KEEP ALIVE <span style="color:var(--gold2)">'26</span></div>
+  <p class="body center">A national championship where student teams keep a live app running while things break around them.</p>
+  <div class="hbw">{HEARTBEAT}</div>
+  <div class="evf"><div class="pz"><div class="kicker">PRIZE POOL</div><div class="big">₹25,000+</div></div>
+   <div class="fx">{ic("trophy","#F7A3CC","7mm")}<span>Top 15 teams compete live on campus</span></div></div>
+ </div>
+ <p class="evc center">Both run inside Tantrafiesta — <b>30K+ footfall</b>, <b>2K+ participants</b>, <b>15M+ digital impressions</b>.</p>
+</div>
+''')
 
 # ---------------- 7 WHY SPONSOR ----------------
 reasons = [("users","var(--gb)","National talent","Teams from colleges across India compete, with the finals held live in Nagpur."),
@@ -264,7 +328,9 @@ reasons = [("users","var(--gb)","National talent","Teams from colleges across In
            ("brief","var(--gb)","Hire early","Meet the top teams for internship interviews, entirely at your discretion."),
            ("receipt","var(--gr)","CSR &amp; tax benefits","IIIT Nagpur is CSR-registered, and payments are eligible for 80(G) deduction.")]
 rs = ''.join(f'<div class="rs panel"><div class="ri" style="background:{c}">{ic(i,"#fff","6.5mm",2)}</div><div><div class="rt">{t}</div><div class="rd">{d}</div></div></div>' for i,c,t,d in reasons)
-pages.append(frame(7, f'''
+@page('Why Sponsor Us?')
+def why_sponsor(n, v):
+    return frame(n, f'''
 <style>
 .ws2{{display:flex;align-items:center;justify-content:space-around;margin-top:11mm}}
 .ws2 .s{{text-align:center;width:48mm}}
@@ -294,7 +360,7 @@ pages.append(frame(7, f'''
  <img src="a/orn_div.png" style="display:block;width:118mm;margin:9mm auto 0">
  <div class="rsg">{rs}</div>
 </div>
-'''))
+''')
 
 # ---------------- 8 NAGPUR REACH ----------------
 chan_l = [("insta","Instagram","Reels and posts by Tantrafiesta and GDG IIITN"),("mega","WhatsApp","Shoutouts across Nagpur college communities"),("handshake","Collab posts","With Nagpur college clubs and GDG chapters")]
@@ -305,7 +371,9 @@ gets = [("eye","Your logo on posters and our Nagpur Partners post"),("insta","In
         ("gift","Your flyer or offer in every participant kit"),("stage","A stall or sampling spot at the fest"),
         ("trophy","An “Official Partner” certificate for your counter")]
 gt = ''.join(f'<div class="gt">{ic(i,"#F5AE1A","5.5mm",2)}<span>{t}</span></div>' for i,t in gets)
-pages.append(frame(8, f'''
+@page('Your Reach in Nagpur')
+def nagpur_reach(n, v):
+    return frame(n, f'''
 <style>
 .nr{{display:grid;grid-template-columns:1fr 60mm 1fr;align-items:center;gap:4mm;margin-top:12mm}}
 .nr .col{{display:flex;flex-direction:column;gap:5mm}}
@@ -335,7 +403,7 @@ pages.append(frame(8, f'''
  </div>
  <div class="band" style="margin-top:11mm">{ic("heart","#1E1858","7mm",2.2)}<div><b>Students are Nagpur's most social customers.</b> Every reel shared and every stall visit brings their friends to your door.</div></div>
 </div>
-'''))
+''')
 
 # ---------------- tier card helper ----------------
 TCSS = '''<style>
@@ -358,7 +426,9 @@ def tier(badge, name, sub, role, slots, price, bullets, accent):
  <ul class="tick tcols">{bl}</ul></div>'''
 
 # ---------------- 9 EDGE CASE TIERS ----------------
-pages.append(frame(9, TCSS + f'''
+@page('EDGE CASE Sponsor Tiers')
+def ec_tiers(n, v):
+    return frame(n, TCSS + f'''
 <div class="content" style="top:21mm">
  <div class="kicker">EDGE CASE '26 · SPONSOR TIERS</div>
  <h1 class="h lg" style="margin-top:3mm">POWER <span class="pink">THE BUILD</span></h1>
@@ -385,13 +455,15 @@ pages.append(frame(9, TCSS + f'''
   <div><div style="font:400 14pt 'Lilita One'">COMPONENTS PARTNER <span style="font:600 8pt 'Poppins';color:var(--muted)">· in-kind</span></div>
   <div style="font:500 8.8pt 'Poppins';color:#E6E1FF;line-height:1.45;margin-top:1mm">Sensors, dev boards, PCB fabrication or store vouchers for the winners, credited at retail value to the matching tier.</div></div></div>
 </div>
-'''))
+''')
 
 # ---------------- 10 KEEP ALIVE TIERS + BUNDLES ----------------
 def nines(n,c): return f' <span class="mono" style="font-size:11pt;color:{c}">{n}</span>'
 bundles = [("FULL STACK","Actuator + Five Nines","₹50,000","₹45,000"),("DUAL CORE","Processor + Four Nines","₹30,000","₹27,000"),("SIGNAL PAIR","Sensor + Three Nines","₹12,500","₹11,000")]
 bd = ''.join(f'<div class="bdl"><div class="bn">{n}</div><div class="bc">{c}</div><div class="bo">{o}</div><div class="bp">{p}</div></div>' for n,c,o,p in bundles)
-pages.append(frame(10, TCSS + f'''
+@page('KEEP ALIVE Tiers &amp; Bundles')
+def ka_tiers(n, v):
+    return frame(n, TCSS + f'''
 <style>
 .bds{{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin-top:4mm}}
 .bdl{{text-align:center;padding:4mm 2mm 3.5mm;border-radius:4mm;background:linear-gradient(180deg,#3A1460,#22114E);border:.5mm solid var(--hot)}}
@@ -419,58 +491,58 @@ pages.append(frame(10, TCSS + f'''
    "1 dedicated post",
    "Standee at the finale war-room",
    "Your flyer in every finalist kit"],"#FBBC04")}
- <div class="kicker tfk" style="margin-top:6mm"><img src="a/line_l.png"><span>SPONSOR BOTH EVENTS · BUNDLES</span><img class="r" src="a/line_l.png"></div>
+ <div class="kicker tfk" style="margin-top:5mm"><img src="a/line_l.png"><span>SPONSOR BOTH EVENTS · BUNDLES</span><img class="r" src="a/line_l.png"></div>
  <div class="bds">{bd}</div>
 </div>
-'''))
+''')
 
-# ---------------- 11 LOCAL PARTNERS ----------------
-lad = [("b_bronze.png","LOCAL FRIEND","₹2,500",["Your logo on our “Nagpur Partners” post","“Official Partner” certificate"],"#E9A27A"),
+# ---------------- 11 LOCAL PARTNERS (Nagpur version: 4 tiers in a 2×2 grid) ----------------
+lad = [("b_diamond.png","NAGPUR TITLE PARTNER","₹20,000–25,000",["Everything in Spotlight","A dedicated reel featuring your outlet or product","Stage mention at the finale","Logo on all event posters and the Unstop listing","Exclusive “Official [Category] Partner” title in your category"],"#F7A3CC"),
+       ("b_gold.png","SPOTLIGHT PARTNER","₹10,000",["Everything in Community","A dedicated Instagram post","A stall or sampling spot at the fest","Your logo on the event banner"],"#FFD36B"),
        ("b_silver.png","COMMUNITY PARTNER","₹5,000",["Everything in Local Friend","Instagram story shoutout","Your flyer in every participant kit"],"#D6DCE8"),
-       ("b_gold.png","SPOTLIGHT PARTNER","₹10,000",["Everything in Community","A dedicated Instagram post","A stall or sampling spot at the fest","Your logo on the event banner"],"#FFD36B")]
-ld = ''.join(f'<div class="card ld" style="border-color:{c}"><img src="a/{b}"><div class="ldn" style="color:{c}">{n}</div><div class="price" style="font-size:25pt;margin-top:1.5mm">{p}</div><ul class="tick" style="margin-top:4.5mm;text-align:left">{"".join(f"<li>{x}</li>" for x in bl)}</ul></div>' for b,n,p,bl,c in lad)
+       ("b_bronze.png","LOCAL FRIEND","₹2,500",["Your logo on our “Nagpur Partners” post","“Official Partner” certificate"],"#E9A27A")]
+ld = ''.join(f'<div class="card ld" style="border-color:{c}"><div class="ldh"><img src="a/{b}"><div><div class="ldn" style="color:{c}">{n}</div><div class="price">{p}</div></div></div><ul class="tick">{"".join(f"<li>{x}</li>" for x in bl)}</ul></div>' for b,n,p,bl,c in lad)
 ink = [("coffee","Midnight Fuel","Snacks and coffee for the <span class=nw>24-hour</span> build"),("gift","Goodies &amp; Merch","T-shirts, stickers, totes and lanyards"),
        ("cpu","Components","Sensors, boards and tool vouchers"),("printer","Printing","Standees, certificates and ID cards"),
        ("book","Learning","Course seats and scholarships"),("mega","Media","Coverage before and after the fest")]
-ik = ''.join(f'<div class="ik"><div class="iki">{ic(i,"#F5AE1A","7.5mm",1.8)}</div><div class="ikt">{t}</div><div class="ikd">{d}</div></div>' for i,t,d in ink)
-pages.append(frame(11, f'''
+ik = ''.join(f'<div class="ik"><div class="iki">{ic(i,"#F5AE1A","6.4mm",1.8)}</div><div><div class="ikt">{t}</div><div class="ikd">{d}</div></div></div>' for i,t,d in ink)
+@page('Nagpur Local Partners')
+def local_partners(n, v):
+    return frame(n, f'''
 <style>
-.lds{{display:grid;grid-template-columns:repeat(3,1fr);gap:4.5mm;margin-top:7mm;align-items:stretch}}
-.ld{{padding:5.5mm 4.5mm;text-align:center}}
-.ld img{{height:17mm}}
-.ldn{{font:800 9pt 'Poppins';letter-spacing:.1em;margin-top:2mm}}
-.iks{{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin-top:4mm}}
-.ik{{text-align:center;padding:4.5mm 3mm;background:rgba(20,15,66,.85);border-radius:3.5mm;border:.4mm solid rgba(224,166,43,.6)}}
-.iki{{width:13mm;height:13mm;border-radius:50%;border:.5mm solid var(--gold);margin:0 auto 2mm;display:flex;align-items:center;justify-content:center}}
-.ikt{{font:400 12pt 'Lilita One';color:#fff}}
-.ikd{{font:500 7.8pt 'Poppins';color:#D2CDF2;line-height:1.4;margin-top:.8mm}}
+.lds{{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:4.5mm;margin-top:5.5mm}}
+.ld{{padding:4mm 5mm 2.6mm}}
+.ldh{{display:flex;align-items:center;gap:4mm;padding-bottom:2.6mm;border-bottom:.3mm solid rgba(224,166,43,.35)}}
+.ldh img{{height:13.5mm;flex:none}}
+.ldn{{font:800 8.6pt 'Poppins';letter-spacing:.1em}}
+.ldh .price{{font-size:20pt;margin-top:.8mm;white-space:nowrap}}
+.ld ul.tick{{margin-top:2.8mm}}
+.ld ul.tick li{{font-size:8.7pt;line-height:1.38;margin-bottom:1.3mm}}
+.iks{{display:grid;grid-template-columns:repeat(3,1fr);gap:3mm;margin-top:3.5mm}}
+.ik{{display:flex;align-items:center;gap:3mm;padding:2.8mm 3.4mm;background:rgba(20,15,66,.85);border-radius:3.5mm;border:.4mm solid rgba(224,166,43,.6)}}
+.iki{{flex:none;width:11mm;height:11mm;border-radius:50%;border:.5mm solid var(--gold);display:flex;align-items:center;justify-content:center}}
+.ikt{{font:400 11.5pt 'Lilita One';color:#fff;line-height:1.1}}
+.ikd{{font:500 7.4pt 'Poppins';color:#D2CDF2;line-height:1.35;margin-top:.6mm}}
 </style>
 <div class="content" style="top:23mm">
  <div class="kicker">FOR CAFÉS · SHOPS · BRANDS · INSTITUTES</div>
  <h1 class="h lg" style="margin-top:3mm">NAGPUR <span class="pink">LOCAL PARTNERS</span></h1>
  <p class="body center" style="margin-top:6mm">Partnerships sized for Nagpur businesses. Pick a tier, or support us <b>in kind</b> with your products and services.</p>
  <div class="lds">{ld}</div>
- <div class="kicker tfk" style="margin-top:8mm"><img src="a/line_l.png"><span>PREFER TO GIVE PRODUCT INSTEAD OF CASH?</span><img class="r" src="a/line_l.png"></div>
+ <div class="kicker tfk" style="margin-top:6mm"><img src="a/line_l.png"><span>PREFER TO GIVE PRODUCT INSTEAD OF CASH?</span><img class="r" src="a/line_l.png"></div>
  <div class="iks">{ik}</div>
  <p style="font:500 8pt 'Poppins';color:#CFC9F2;text-align:center;margin-top:4mm">In-kind support is credited at retail value to the matching tier, with an “Official Partner” title.</p>
 </div>
-'''))
+''')
 
-# ---------------- 12 DELIVERABLES ----------------
+# ---------------- 12 DELIVERABLES (one table per version) ----------------
 Y='<img class="tk" src="a/tick.png">'; N='<span class="n">—</span>'
 def t(x): return f'<span class="tx">{x}</span>'
-rows = [("“Powered by” naming",[Y,N,N,N,N,N]),("Named track / award",[N,Y,t("Sensor"),N,N,N]),("Logo on the Unstop listing",[Y,Y,Y,N,N,N]),
-        ("Logo on posters &amp; banners",[Y,Y,Y,t("Banner"),N,N]),("Logo on the Tantrafiesta website",[Y,Y,Y,N,N,N]),
-        ("Dedicated reels",[t("2"),t("1"),N,N,N,N]),("Dedicated Instagram posts",[t("2"),t("1"),t("1"),t("1"),N,N]),
-        ("Instagram story shoutout",[Y,Y,Y,Y,Y,N]),("“Nagpur Partners” post",[Y,Y,Y,Y,Y,Y]),
-        ("WhatsApp community shoutouts",[t("3"),t("2"),t("1"),N,N,N]),("Standee / stall at venue",[t("Stall"),t("Standee"),t("Standee"),t("Stall"),N,N]),
-        ("Present on stage",[Y,Y,t("Award"),N,N,N]),("Judge seat",[Y,Y,N,N,N,N]),
-        ("Flyer in participant kits",[Y,Y,Y,Y,Y,N]),("Meet top teams for internships",[Y,Y,N,N,N,N]),
-        ("“Official Partner” certificate",[Y,Y,Y,Y,Y,Y]),("Post-event report",[Y,Y,Y,N,N,N])]
-hdr = [("TITLE","Actuator · Five Nines","₹25K"),("CORE","Processor · Four Nines","₹15K"),("SUPPORTING","Sensor · Three Nines","₹5K–7.5K"),("SPOTLIGHT","Local partner","₹10K"),("COMMUNITY","Local partner","₹5K"),("FRIEND","Local partner","₹2.5K")]
-th = '<th class="perk">PERKS</th>' + ''.join(f'<th><div class="a">{a}</div><div class="b">{b}</div><div class="c">{c}</div></th>' for a,b,c in hdr)
-tb = ''.join(f'<tr><td class="perk">{r}</td>' + ''.join(f'<td>{v}</td>' for v in vals) + '</tr>' for r,vals in rows)
-pages.append(frame(12, f'''
+DV_NOTE = 'On-campus branding is displayed during event days. In-kind partners receive the deliverables of the tier matching their retail value. Final perks are as per the MoU signed.'
+def dv_page(n, hdr, rows, css):
+    th = '<th class="perk">PERKS</th>' + ''.join(f'<th><div class="a">{a}</div><div class="b">{b}</div><div class="c">{c}</div></th>' for a,b,c in hdr)
+    tb = ''.join(f'<tr><td class="perk">{r}</td>' + ''.join(f'<td>{x}</td>' for x in vals) + '</tr>' for r,vals in rows)
+    return frame(n, f'''
 <style>
 table.dv{{width:100%;border-collapse:separate;border-spacing:0;margin-top:8mm;border:.6mm solid var(--frame);border-radius:4mm;overflow:hidden;background:rgba(20,15,66,.9)}}
 .dv th{{background:linear-gradient(180deg,#B0226C,#7E1650);color:#fff;padding:2.8mm 1mm;text-align:center;vertical-align:middle;border-left:.3mm solid rgba(255,255,255,.18)}}
@@ -482,13 +554,46 @@ table.dv{{width:100%;border-collapse:separate;border-spacing:0;margin-top:8mm;bo
 .dv td.perk{{text-align:left;padding-left:4mm;font:600 8.4pt 'Poppins';color:#fff;border-left:0;width:50mm}}
 .dv tr:nth-child(even) td{{background:rgba(255,255,255,.035)}}
 .dv .tk{{height:4.2mm;display:block;margin:0 auto}} .dv .n{{color:#6F68A8}} .dv .tx{{color:var(--pink);font-weight:700;font-size:7.8pt}}
+{css}
 </style>
 <div class="content">
  <h1 class="h lg">DELIVERABLES</h1>
  <table class="dv"><tr>{th}</tr>{tb}</table>
- <p style="font:500 7.8pt 'Poppins';color:#CFC9F2;margin-top:4mm;line-height:1.55">On-campus branding is displayed during event days. In-kind partners receive the deliverables of the tier matching their retail value. Final perks are as per the MoU signed.</p>
+ <p style="font:500 7.8pt 'Poppins';color:#CFC9F2;margin-top:4mm;line-height:1.55">{DV_NOTE}</p>
 </div>
-'''))
+''')
+
+# Companies: the three corporate columns only (the local SPOTLIGHT / COMMUNITY / FRIEND columns are dropped)
+CO_HDR = [("TITLE","Actuator · Five Nines","₹25K"),("CORE","Processor · Four Nines","₹15K"),("SUPPORTING","Sensor · Three Nines","₹5K–7.5K")]
+CO_ROWS = [("“Powered by” naming",[Y,N,N]),("Named track / award",[N,Y,t("Sensor")]),("Logo on the Unstop listing",[Y,Y,Y]),
+        ("Logo on posters &amp; banners",[Y,Y,Y]),("Logo on the Tantrafiesta website",[Y,Y,Y]),
+        ("Dedicated reels",[t("2"),t("1"),N]),("Dedicated Instagram posts",[t("2"),t("1"),t("1")]),
+        ("Instagram story shoutout",[Y,Y,Y]),("“Nagpur Partners” post",[Y,Y,Y]),
+        ("WhatsApp community shoutouts",[t("3"),t("2"),t("1")]),("Standee / stall at venue",[t("Stall"),t("Standee"),t("Standee")]),
+        ("Present on stage",[Y,Y,t("Award")]),("Judge seat",[Y,Y,N]),
+        ("Flyer in participant kits",[Y,Y,Y]),("Meet top teams for internships",[Y,Y,N]),
+        ("“Official Partner” certificate",[Y,Y,Y]),("Post-event report",[Y,Y,Y])]
+@page('Deliverables')
+def deliverables_companies(n, v):
+    return dv_page(n, CO_HDR, CO_ROWS, '''
+.dv th{padding:3.2mm 2mm} .dv th .a{font-size:13pt} .dv th .b{font-size:7pt;margin-top:.7mm} .dv th .c{font-size:9.4pt;margin-top:.9mm}
+table.dv{table-layout:fixed} .dv th.perk{font-size:15pt;padding-left:5mm;width:66mm}
+.dv td{padding:2.95mm 2mm;font-size:9pt} .dv td.perk{width:66mm;padding-left:5mm;font-size:9.2pt}
+.dv .tk{height:4.8mm} .dv .tx{font-size:8.8pt}''')
+
+# Nagpur: the four local tiers, rows only for perks those tiers actually include
+NG_HDR = [("TITLE","Nagpur Title Partner","₹20–25K"),("SPOTLIGHT","Spotlight Partner","₹10K"),("COMMUNITY","Community Partner","₹5K"),("FRIEND","Local Friend","₹2.5K")]
+NG_ROWS = [("“Nagpur Partners” post",[Y,Y,Y,Y]),("Instagram story shoutout",[Y,Y,Y,N]),("Dedicated Instagram post",[Y,Y,N,N]),
+        ("Dedicated reel",[Y,N,N,N]),("Logo on event posters",[Y,N,N,N]),("Logo on the Unstop listing",[Y,N,N,N]),
+        ("Logo on the event banner",[Y,Y,N,N]),("Stall / sampling spot",[Y,Y,N,N]),("Flyer in participant kits",[Y,Y,Y,N]),
+        ("Stage mention at the finale",[Y,N,N,N]),("Exclusive category title",[Y,N,N,N]),("“Official Partner” certificate",[Y,Y,Y,Y])]
+@page('Deliverables')
+def deliverables_nagpur(n, v):
+    return dv_page(n, NG_HDR, NG_ROWS, '''
+.dv th{padding:3.4mm .8mm} .dv th .a{font-size:12pt} .dv th .b{font-size:6.8pt;margin-top:.7mm} .dv th .c{font-size:9.4pt;margin-top:.9mm}
+table.dv{table-layout:fixed} .dv th.perk{font-size:15pt;padding-left:5mm;width:64mm}
+.dv td{padding:4.2mm 1.5mm;font-size:9.4pt} .dv td.perk{width:64mm;padding-left:5mm;font-size:9.6pt}
+.dv .tk{height:5mm}''')
 
 # ---------------- 13 HOW TO PARTNER + POLICIES ----------------
 steps3 = [("1","Pick your slot","Choose a tier, an award, a track or an in-kind category."),("2","Sign the MoU","We formalise the amount and perks in an MoU with IIIT Nagpur."),("3","Pay &amp; share assets","Transfer the amount and send us your logo and brand assets.")]
@@ -502,7 +607,9 @@ pol = ["All cheques / DDs are to be drawn in favour of <b>IIIT Nagpur Gymkhana</
        "Logos and brand assets should reach us at least 7 days before the event for print.",
        "Decisions on the final offering rest solely with the organisers."]
 pl = ''.join(f'<li>{x}</li>' for x in pol)
-pages.append(frame(13, f'''
+@page('How to Partner')
+def how_to_partner(n, v):
+    return frame(n, f'''
 <style>
 .s3s{{display:grid;grid-template-columns:repeat(3,1fr);gap:4.5mm;margin-top:8mm}}
 .s3{{text-align:center;padding:6.5mm 3.5mm;background:rgba(20,15,66,.85);border:.5mm solid var(--frame);border-radius:4mm}}
@@ -520,10 +627,12 @@ ul.pol li::before{{content:'✦';position:absolute;left:0;top:0;color:var(--pink
  <ul class="pol">{pl}</ul>
  <div class="band" style="margin-top:9mm">{ic("handshake","#1E1858","7mm",2.2)}<div><b>Have something else in mind?</b> Write to <a href="mailto:gdg@iiitn.ac.in" style="font-weight:700">gdg@iiitn.ac.in</a> and we'll tailor a partnership around your brand.</div></div>
 </div>
-'''))
+''')
 
 # ---------------- 14 PAST PARTNERS ----------------
-pages.append(frame(14, f'''
+@page('Past Partners')
+def past_partners(n, v):
+    return frame(n, f'''
 <style>.spimg{{display:block;margin:0 auto;border:.8mm solid var(--frame);border-radius:4mm}}</style>
 <div class="content">
  <h1 class="h lg">PAST <span class="pink">PARTNERS</span></h1>
@@ -531,13 +640,15 @@ pages.append(frame(14, f'''
  <img class="spimg" src="a/sp1.png" style="width:128mm;margin-top:6mm">
  <img class="spimg" src="a/sp2.png" style="width:128mm;margin-top:4.5mm">
 </div>
-'''))
+''')
 
 # ---------------- 15 CONTACT ----------------
 IG='https://www.instagram.com/gdg_iiitn/'
 GC='https://gdg.community.dev/gdg-on-campus-indian-institute-of-information-technology-nagpur-india/'
 lotus = '<img src="a/ic_lotus.png" style="height:8.5mm;display:block;margin:0 auto">'
-pages.append(frame(15, f'''
+@page('Contact Us')
+def contact(n, v):
+    return frame(n, f'''
 <style>
 .pp{{display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-top:12mm}}
 .pc{{text-align:center;padding:9mm 4mm}}
@@ -576,10 +687,12 @@ pages.append(frame(15, f'''
   <div><div style="font:400 13pt 'Lilita One';color:#fff">Indian Institute of Information Technology, Nagpur</div>
   <div style="font:500 8.6pt 'Poppins';color:#D8D3F6;margin-top:.6mm">Survey No. 140, 141/1, Waranga, PO Dongargaon (Butibori), Nagpur, Maharashtra 441108</div></div></div>
 </div>
-'''))
+''')
 
 # ---------------- 16 BACK COVER ----------------
-pages.append(frame(16, f'''
+@page()
+def back_cover(n, v):
+    return frame(n, f'''
 <style>
 .bk{{position:absolute;top:26mm;left:12mm;right:12mm;height:136mm;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;z-index:10}}
 .bk .t{{font:800 16pt 'Poppins';color:#fff;letter-spacing:.04em;line-height:1.35}}
@@ -602,8 +715,27 @@ pages.append(frame(16, f'''
  <div class="bk-c"><a href="mailto:gdg@iiitn.ac.in">gdg@iiitn.ac.in</a> &nbsp;·&nbsp; <a href="tel:+918903892943">+91 89038 92943</a> &nbsp;·&nbsp; <a href="tel:+916377295940">+91 63772 95940</a></div>
 </div>
 <div class="bk-b"><img src="a/building.png"></div>
-''', foot=False))
+''', foot=False)
 
-html = f'<!doctype html><html lang="en"><head><meta charset="utf-8">{FONTS}<style>{CSS}</style></head><body>' + ''.join(pages) + '</body></html>'
-open('brochure.html','w').write(html)
-print('pages', len(pages))
+# ---------------- VERSIONS ----------------
+VERSIONS = {
+ 'companies': dict(pdf='GDGoC_IIITN_Sponsorship_Brochure_Companies.pdf', subtitle='Two national championships · Tantrafiesta 2026',
+   pages=[cover, index, about, gdg, edge_case, keep_alive, why_sponsor, ec_tiers, ka_tiers, deliverables_companies,
+          how_to_partner, past_partners, contact, back_cover]),
+ 'nagpur': dict(pdf='GDGoC_IIITN_Sponsorship_Brochure_Nagpur.pdf', subtitle='Nagpur Partner Brochure · Tantrafiesta 2026',
+   pages=[cover, index, about, the_events, nagpur_reach, local_partners, deliverables_nagpur,
+          how_to_partner, past_partners, contact, back_cover]),
+}
+
+def build(name):
+    v = dict(VERSIONS[name])
+    v['index'] = [(fn.title, i) for i, fn in enumerate(v['pages'], 1) if fn.title]
+    pages = [fn(i, v) for i, fn in enumerate(v['pages'], 1)]
+    html = f'<!doctype html><html lang="en"><head><meta charset="utf-8">{FONTS}<style>{CSS}</style></head><body>' + ''.join(pages) + '</body></html>'
+    out = f'brochure_{name}.html'
+    open(out, 'w').write(html)
+    print(out, len(pages), 'pages ->', v['pdf'])
+
+if __name__ == '__main__':
+    import sys
+    for name in sys.argv[1:] or VERSIONS: build(name)

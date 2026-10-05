@@ -10,6 +10,18 @@ pip install -r requirements.txt && python -m playwright install --with-deps chro
 python build.py && python check.py && python render.py brochure.html out.pdf
 python preview.py out.pdf sheet.png        # look at sheet.png before you finish
 ```
+
+**After the split** `build.py` builds both versions (page lists in `VERSIONS` at the bottom of `build.py`):
+```
+python build.py                            # -> brochure_companies.html, brochure_nagpur.html
+python check.py brochure_companies.html && python check.py brochure_nagpur.html
+python render.py brochure_companies.html GDGoC_IIITN_Sponsorship_Brochure_Companies.pdf
+python render.py brochure_nagpur.html GDGoC_IIITN_Sponsorship_Brochure_Nagpur.pdf
+python preview.py GDGoC_IIITN_Sponsorship_Brochure_Companies.pdf preview_companies.png
+python preview.py GDGoC_IIITN_Sponsorship_Brochure_Nagpur.pdf preview_nagpur.png
+```
+If `TF26_Corporate_Brochure.pdf` is not in the folder, `render.py` takes the TF last page from the last page of
+`reference_current_brochure.pdf` (the same page).
 Fonts are local (`fonts/fonts.css`), so no network is needed to build. Assets live in `a/`.
 
 ## The task: split the combined brochure into two PDFs
